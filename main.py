@@ -35,14 +35,15 @@ def archive_data(data):
 
 def send_email(data):
     subject = f"{data['date']}_{data['timestamp']}"
-    if rules["filter"]:
-        body = rate_filter(data['rates'])
+    if rules["mail"]["filter"]:
+        body = rate_filter(data["rates"])
     else:
-        body = data['rates']
-    recipients = rules['recipients'] if 'recipients' in rules else []
+        body = data["rates"]
+    recipients = rules["mail"]["recipients"] if "recipients" in\
+                                                rules['mail'] else []
 
     if not recipients:
-        recipients = ['toofanmohammadi1234@gmail.com']
+        recipients = ['abraham.is.sayin@gmail.com']
 
     try:
         yag = yagmail.SMTP('abraham.is.sayin@gmail.com', 'ejbcktmxstdynkza')
@@ -54,16 +55,26 @@ def send_email(data):
 
 def rate_filter(data):
     rates_to_send = {}
-    preferred = rules['preferred'] if 'preferred' in rules else []
+    preferred = rules['mail']['preferred'] \
+        if 'preferred' in rules['mail'] else []
     for rate in preferred:
         rates_to_send[rate] = data[rate]
     print("Filter Applied!")
     return rates_to_send
 
 
+def create_msg(data):
+    pass
+
+
+def send_notification():
+    pass
+
+
 if __name__ == '__main__':
     data = get_response()
     if data:
-        archive_data(data)
-        if rules['mail']:
+        if rules["archive"]:
+            archive_data(data)
+        if rules['mail']['enable']:
             send_email(data)

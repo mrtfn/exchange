@@ -7,13 +7,21 @@ url = BASE_PATH + API_KEY
 
 rules = {
     "archive": True,
-    "mail": True,
-    "filter": False,
-    # if filter=true then preferred list will apply
-    "preferred": ["BTC", "USD", "CAD"],
-    "recipients": [
-        'toofanmohammadi1234@gmail.com',
-        'toofanmohammadi4321@gmail.com'
-    ]
-
+    "mail": {
+        "enable": True,
+        "filter": True,
+        "preferred": ["BTC", "USD", "CAD"],
+        "recipients": [
+            'toofanmohammadi1234@gmail.com',
+            'toofanmohammadi4321@gmail.com'
+        ]
+    },
+    "notification": {
+        "enable": True,
+        "receiver": '',
+        "selected": {
+            "BTC": {"min": 100, "max": 100},
+            "CAD": {"min": 100, "max": 100}
+        }
+    }
 }
