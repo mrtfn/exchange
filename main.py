@@ -2,7 +2,8 @@ import json
 import yagmail
 
 import requests
-from config import url, rules
+from config import url, rules, SMS_API, SMS_SENDER_NUMBER
+from kavenegar import KavenegarAPI
 
 
 def get_response():
@@ -54,21 +55,37 @@ def send_email(data):
 
 
 def rate_filter(data):
+    print("Filtering rates to desired ones...")
     rates_to_send = {}
     preferred = rules['mail']['preferred'] \
         if 'preferred' in rules['mail'] else []
     for rate in preferred:
         rates_to_send[rate] = data[rate]
-    print("Filter Applied!")
     return rates_to_send
 
 
 def create_msg(data):
-    pass
+    print("checking events to notify... ")
+    msg = ''
+    preferred = rules['notification']['selected']
+
+    for rate in preferred.keys():
+        if data['rates'][rate] <= preferred[rate]['min']:
+            msg += f"{data['rates']} reached Minimum\n"
+
+        if data['rates'][rate] <= preferred[rate]['max']:
+            msg += f"{data['rates']} reached Maximum\n*\n"
+    return msg
 
 
-def send_notification():
-    pass
+def send_notification(msg):
+    api = KavenegarAPI(SMS_API)
+    params = {'sender': SMS_SENDER_NUMBER,
+              'receptor': rules['notification']['receiver'],
+              'message': msg
+              }
+    response = api.sms_send(params)
+    print(response)
 
 
 if __name__ == '__main__':
@@ -78,3 +95,10 @@ if __name__ == '__main__':
             archive_data(data)
         if rules['mail']['enable']:
             send_email(data)
+        if rules['notification']['enable']:
+            msg = create_msg(data)
+            print(msg)
+            if msg:
+                print("HEY something happened! Sending sms...")
+                send_notification(msg)
+                print('Sent, gl.')
